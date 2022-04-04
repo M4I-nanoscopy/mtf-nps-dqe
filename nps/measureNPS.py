@@ -1,0 +1,182 @@
+import argparse
+import sys
+import matplotlib.pyplot as plt
+import mrcfile
+import numpy as np
+import os
+from scipy import fftpack
+from scipy.optimize import curve_fit
+from skimage.transform import downscale_local_mean
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('FILE', nargs='?', help="Input image stack of flat fields (mrcs).")
+    parser.add_argument('--super_res', default=1, type=int, help='Rescale the frequency of the measured NPS curve by this factor')
+    parser.add_argument('--store', type=str, help='Store output measured MTF curve')
+
+    settings = parser.parse_args()
+
+    return settings
+
+
+# A logistic function used for fitting NPS(0)
+def nps0_fit(x, a, b, c):
+    return a*(x+b)/(x+c)
+
+
+def power_spectrum(d):
+    # Take the fourier transform of the image.
+    f1 = fftpack.fft2(d)
+
+    # Now shift the quadrants around so that low spatial frequencies are in
+    # the center of the 2D fourier transformed image.
+    f2 = fftpack.fftshift(f1)
+
+    # Take the absolute squared to create a power spectrum
+    psd2D = np.abs(f2) ** 2
+
+    return psd2D
+
+
+def radial_profile(data):
+    y, x = np.indices(data.shape)
+    center = tuple(int(s / 2) for s in data.shape)
+    r = np.sqrt((x - center[0]) ** 2 + (y - center[1]) ** 2)
+    r = r.astype(np.int)
+
+    tbin = np.bincount(r.ravel(), data.ravel())
+    nr = np.bincount(r.ravel())
+
+    return tbin / nr
+
+
+def calculate_nnps(nps, nps0):
+    return np.divide(nps, nps0)
+
+
+def calculate_nps0(frames, mean):
+    r = list()
+    for frame in frames:
+        f = frame - mean
+        for factor in range(1, 50, 1):
+            b = 1/factor
+
+            # Bin the frame using the mean of the surrounding pixels
+            binned = downscale_local_mean(f, (factor, factor))
+
+            # Calculate the variance
+            sigma_squared = np.var(binned)
+
+            # This does NOT correspond to the sigma^2/b^2 as written in McMullan et al. 2009 and Paton et al. 2021!
+            nps0 = sigma_squared*factor**2
+
+            # print("shape: %s, factor: %d, b: %.2f, var: %s, nps0: %.5f" % (binned.shape, factor, b, sigma_squared, nps0))
+
+            r.append([factor, nps0])
+
+    return np.array(r)
+
+
+# Read config
+config = parse_arguments()
+
+if config.FILE is None:
+    frames = np.random.normal(256, 16, (10, 512, 512))
+
+    # Calculate the mean of all pixels
+    mean = np.mean(frames, axis=0)
+
+    config.FILE = 'Simulated'
+else:
+    with mrcfile.open(config.FILE, mode='r') as f:
+        frames = f.data
+        # Calculate the mean of all pixels
+        mean = np.mean(f.data, axis=0)
+
+ps = list()
+for frame in frames:
+    # Calculate the power spectrum of the frame minus the mean of the frames
+    ps.append(power_spectrum(frame-mean))
+
+# Calculate the 2D NPS by taking the average of all individual NPS, and dividing by the number of pixels
+# Paton 2021 et al. (eq 2)
+nps = np.mean(np.array(ps), axis=0)/(mean.shape[0]*mean.shape[1])
+
+# Calculate NPS(0) as function of the binning factor
+nps0_meas = calculate_nps0(frames, mean)
+
+# Make an initial guess for the fitting, by taking the first 10% of the data as NPS(0)
+nps0_g = np.mean(radial_profile(nps)[0:10])
+print("Guessed NPS(0): %0.2f" % nps0_g)
+fit_guess = [nps0_g, 1, 1]
+fit_bounds = ([nps0_g - nps0_g*0.1, 0, 0], [nps0_g + nps0_g*0.1, np.inf, np.inf])
+
+# Fit
+fit, pcov = curve_fit(nps0_fit, nps0_meas[:, 0], nps0_meas[:, 1], maxfev=100000, p0=fit_guess, bounds=fit_bounds)
+x_fit = np.arange(0, 50)
+print("Fitted NPS(0): %0.2f" % fit[0])
+
+# Normalize the NPS using the fitted NPS(0)
+nnps = calculate_nnps(nps, fit[0])
+
+# Take the radial profile to create a 1D NPS
+nnps_1d = radial_profile(nnps)
+
+# Calculate nyquist frequency from the image shape
+nyquist = mean.shape[0]/2
+max_x = np.sqrt((nnps.shape[0]/2)**2 + (nnps.shape[0]/2)**2)
+w = np.linspace(0, max_x/nyquist, len(nnps_1d))
+
+if config.super_res > 1:
+    print("Applying super res scaling to final curve")
+    w = w * config.super_res
+
+# Figures
+fig, ((ax0, ax1, ax2), (ax3, ax4, ax5)) = plt.subplots(2, 3)
+fig.suptitle(config.FILE)
+
+# Individual frame
+im = ax0.imshow(frames[0])
+fig.colorbar(im, ax=ax0, orientation='vertical')
+ax0.set_title("First frame")
+
+# Subtraction
+im = ax1.imshow(frames[0] - mean)
+fig.colorbar(im, ax=ax1, orientation='vertical')
+ax1.set_title("First frame minus mean of frames")
+
+# Power spectrum
+im = ax2.imshow(nps)
+fig.colorbar(im, ax=ax2, orientation='vertical')
+ax2.set_title("Noise Power Spectrum (NPSdig)")
+
+# Calculating NPS0
+ax3.scatter(nps0_meas[:, 0], nps0_meas[:, 1], label='Measured')
+ax3.hlines(y=fit[0], xmin=0, xmax=np.max(nps0_meas[:, 0]), color='r', label='nps0')
+ax3.plot(x_fit, nps0_fit(x_fit, *fit), color='orange', label='%.02f*(x+%0.2f)/(x+%0.2f)' % (fit[0], fit[1], fit[2]))
+ax3.set_ylim(0)
+ax3.set_xlabel("Factor")
+ax3.set_ylabel("nps0")
+ax3.legend(loc='lower right')
+ax3.set_title("Estimating NPS(0)")
+
+im = ax4.imshow(nnps, vmax=1)
+fig.colorbar(im, ax=ax4, orientation='vertical')
+ax4.set_title("Normalised 2D noise power spectrum")
+
+# Normalised NPS
+ax5.plot(w, nnps_1d, label=os.path.basename(config.FILE))
+ax5.set_xlim([0, 1])
+ax5.set_ylim([0, 1.1])
+ax5.set_xlabel("Spatial frequency (fraction of Nyquist)")
+ax5.set_ylabel("Normalised noise power spectrum")
+ax5.set_title("Normalised 1D noise power spectrum")
+ax5.set_aspect('equal', adjustable='box')
+ax5.grid()
+
+plt.show()
+
+if config.store is not None:
+    np.savez(config.store, w=w, nps=nnps_1d)
