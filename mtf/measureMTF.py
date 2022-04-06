@@ -1,5 +1,6 @@
 import argparse
 import math
+import os
 import sys
 
 import matplotlib.pyplot as plt
@@ -7,6 +8,7 @@ import numpy as np
 import scipy.optimize
 from matplotlib import patches
 from matplotlib.widgets import RectangleSelector
+import mrcfile
 from scipy.ndimage import binary_dilation, sobel
 from scipy.special import erfc, erf
 from scipy.stats import linregress
@@ -83,7 +85,7 @@ config = parse_arguments()
 
 if config.FILE is None:
     print("INFO: No image supplied, simulating ideal edge")
-    im = np.zeros((512, 512), dtype=np.uint8)
+    im = np.zeros((512, 512), dtype=np.float64)
 
     # Add illuminated area
     im[0:512, 256:512] = 400
@@ -98,8 +100,21 @@ if config.FILE is None:
     config.width = 256
     config.height = 256
 else:
-    # Read image
-    im = np.array(io.imread(config.FILE))
+    ext = os.path.splitext(config.FILE)[1]
+
+    if ext == '.tif' or ext == '.tiff':
+        # Read image
+        im = np.array(io.imread(config.FILE))
+    elif ext == '.mrc' or ext == '.mrcs':
+        with mrcfile.open(config.FILE, mode='r') as f:
+            if f.is_image_stack():
+                print("WARNING: Image stack, only reading first frame.")
+                im = f.data[0]
+            else:
+                im = f.data
+    else:
+        print('ERROR: Unsupported file extension (only TIF or MRC)')
+        sys.exit(1)
 
     if config.rotate > 0:
         im = np.rot90(im, config.rotate)
@@ -185,9 +200,9 @@ if distances[0] > distances[-1]:
 
 # Normalize the ESF by taking values far away from the edge. Also correct for dark noise
 flat_mean = np.mean(values[distances > 10])
-print("Mean count: %d" % flat_mean)
+print("Mean count: %.2f" % flat_mean)
 dark_mean = np.mean(values[distances < -10])
-print("Mean dark count: %d" % dark_mean)
+print("Mean dark count: %.2f" % dark_mean)
 
 # Normalize
 esf_meas = (values - dark_mean) / (flat_mean - dark_mean)
