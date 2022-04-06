@@ -107,7 +107,7 @@ else:
 if config.x is None or config.y is None or config.width is None or config.height is None:
     plt.imshow(im, origin='lower')
     r = RectangleSelector(plt.gca(), rectangle_select_callback, interactive=True)
-    plt.title("Select rectangle with edge and close window.")
+    plt.title("Select the area with edge to crop. Then close this window.")
     plt.show()
     print(config)
 
@@ -183,10 +183,14 @@ if distances[0] > distances[-1]:
     distances = np.flip(distances)
     values = np.flip(values)
 
-# Normalize the ESF by taking values far away from the edge
+# Normalize the ESF by taking values far away from the edge. Also correct for dark noise
 flat_mean = np.mean(values[distances > 10])
 print("Mean count: %d" % flat_mean)
-esf_meas = values / flat_mean
+dark_mean = np.mean(values[distances < -10])
+print("Mean dark count: %d" % dark_mean)
+
+# Normalize
+esf_meas = (values - dark_mean) / (flat_mean - dark_mean)
 
 # Fit the measured ESF to the theoretical ESF
 try:
