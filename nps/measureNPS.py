@@ -132,26 +132,22 @@ else:
     with mrcfile.open(config.FILE, mode='r') as f:
         frames = list()
 
-        # Crop the frames as needed
-        for fr in f.data:
-            if config.crop > 0:
-                frames.append(fr[0:config.crop, 0:config.crop])
-            else:
-                frames.append(fr)
-
-        frames = np.array(frames)
+        if config.crop > 0:
+            frames = f.data[1:-1, 0:config.crop, 0:config.crop]
+        else:
+            frames = f.data[1:-1]
 
         # Calculate the mean of all pixels
         mean = np.mean(frames, axis=0)
 
-ps = list()
+ps = np.zeros_like(mean)
 for frame in frames:
     # Calculate the power spectrum of the frame minus the mean of the frames
-    ps.append(power_spectrum(frame-mean))
+    ps += power_spectrum(frame-mean)
 
 # Calculate the 2D NPS by taking the average of all individual NPS, and dividing by the number of pixels
 # Paton 2021 et al. (eq 2)
-nps = np.mean(np.array(ps), axis=0)/(mean.shape[0]*mean.shape[1])
+nps = ps/len(frames)/(mean.shape[0]*mean.shape[1])
 nps_1d = radial_profile(nps)
 
 # Calculate NPS(0) as function of the binning factor
