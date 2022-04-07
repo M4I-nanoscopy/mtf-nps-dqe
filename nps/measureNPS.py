@@ -17,6 +17,8 @@ def parse_arguments():
     parser.add_argument('--super_res', default=1, type=int, help='Rescale the frequency of the measured NPS curve by this factor')
     parser.add_argument('--store', type=str, help='Store output measured MTF curve')
     parser.add_argument('--crop', default=0, type=int, help='Crop the image to this (power of 2) size. This helps with NPS(0) estimates.')
+    parser.add_argument('--guess', default=False, action='store_true',
+                        help='Use guessed NPS(0) opposed to fitted NPS(0). Sometimes the fitting is bad.')
 
     settings = parser.parse_args()
 
@@ -88,8 +90,8 @@ def calculate_nps0(frames, mean):
     # Calculate the bin factors to measure. Do this as power of 2, to
     factors = 2**np.arange(1, np.log2(mean.shape[0]), dtype=int)
 
-    # Limit the bin factors to measure to not too small image sizes
-    factors = factors[0:-3]
+    # Limit the bin factors to measure not too small image sizes
+    factors = factors[0:-2]
 
     for frame in frames:
         # Subtract frame from the mean
@@ -154,10 +156,12 @@ nps_1d = radial_profile(nps)
 nps0_meas = calculate_nps0(frames, mean)
 
 # Make an initial guess for the fitting, by taking the first 10% of the data as NPS(0)
-nps0_g = np.mean(nps_1d[0:int(len(nps_1d)*0.1)])
+# Skip the 0 frequency here, as it may contain a large peak which throws off the guessing.
+nps0_g = np.mean(nps_1d[1:int(len(nps_1d)*0.1)])
 print("Guessed NPS(0): %0.2f" % nps0_g)
 fit_guess = [nps0_g, 1]
-fit_bounds = ([nps0_g - nps0_g*0.2, 0], [nps0_g + nps0_g*0.2, np.inf])
+fit_bounds = ([nps0_g - nps0_g*0.5, 0], [nps0_g + nps0_g*0.5, np.inf])
+print(fit_bounds)
 
 # Fit
 fit, pcov = curve_fit(nps0_fit, nps0_meas[:, 0], nps0_meas[:, 1], maxfev=100000, p0=fit_guess, bounds=fit_bounds)
@@ -165,8 +169,11 @@ nps0_f = fit[0]
 x_fit = np.arange(0, np.max(nps0_meas[:, 0])+1)
 print("Fitted NPS(0): %0.2f" % nps0_f)
 
-# Used guessed NPS(0)
-nps0 = nps0_g
+# Used fitted NPS(0)
+if config.guess:
+    nps0 = nps0_g
+else:
+    nps0 = nps0_f
 
 # Normalize the NPS using the selected NPS(0)
 nnps = calculate_nnps(nps, nps0)
