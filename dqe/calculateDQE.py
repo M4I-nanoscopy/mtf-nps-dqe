@@ -52,7 +52,7 @@ mtf_meas_inter = np.interp(nps_freq_w, mtf_freq_w, mtf_meas)
 
 # Calculate DQE
 dqe_meas = np.divide(np.square(mtf_meas_inter), nps_meas) * config.dqe0
-mtf_squared = np.square(mtf_meas_inter) * config.dqe0
+mtf_squared = np.square(mtf_meas_inter)
 
 plt.plot(nps_freq_w, nps_meas, label='NPS')
 plt.plot(nps_freq_w, mtf_meas_inter, label='MTF')

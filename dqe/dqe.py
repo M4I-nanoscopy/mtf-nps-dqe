@@ -56,7 +56,7 @@ if config.published:
     plt.plot(w, dqe, label='Published Falcon III EC (300 kV)')
 
     w, dqe = load_published_csv('data/published/FEI-fIII.csv', "Falcon III", ' ')
-    plt.plot(w, dqe, label='Published Falcon III EC (300 kV)')
+    plt.plot(w, dqe, label='Published Falcon III int (300 kV)')
 
 plt.legend()
 plt.xlim([0, 1.0])
