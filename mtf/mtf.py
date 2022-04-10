@@ -61,6 +61,9 @@ if config.published:
     w, mtf = load_published_star('data/published/mtf_f3ec_300kv.star')
     plt.plot(w, mtf, label='Published Falcon III EC (300 kV)')
 
+    w, mtf = load_published_star('data/published/falconIII200_int.star')
+    plt.plot(w, mtf, label='Published Falcon III int (200 kV)')
+
 plt.legend()
 plt.xlim([0, 1.0])
 plt.ylim([0, 1.0])

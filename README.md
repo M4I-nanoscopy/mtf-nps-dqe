@@ -11,12 +11,14 @@ the ESF. From the fitted parameter the MTF is directly calculated.
 
 ### Noise Power Spectrum (NPS) or Wiener Spectrum
 
-The NPS is measured using a series of flat field exposures. Challenging is estim
+The NPS is measured using a series of flat field exposures. Challenging is estimating NPS(0), which can be done 
+by looking at the normalized variance of progressively binned flat field exposures. 
 
 ### Detective Quantum Efficiency (DQE)
 
 Using the MTF and NPS, the DQE can be calculated. Hereby is DQE(0) (a scaling factor) assumed to be a certain value. 
-To actually measure DQE(0) you need an accurate way to measure the conversion factor (counts out/flux in) of the detector. 
+To actually measure DQE(0) you need an accurate way to measure the true conversion factor (counts out/flux in) of 
+the detector. For example by using a Faraday cup, mounted close to the detector.  
 
 ## Installation
 
@@ -50,14 +52,13 @@ optional arguments:
                         Rescale the frequency of the measured MTF curve by this factor
   --rotate ROTATE       Number of times to rotate the image clockwise
 ```
-Starting without coordinates will show a dialog to select the area for cropping. Starting without
+Starting without coordinates will show a dialog to select the area for cropping:
 
 ```bash
 python3 mtf/measureMTF.py data/edge/image.tif
 ```
 
-To run a simulated edge simple use
-
+To use a simulated edge simple run:
 ```bash
 python3 mtf/measureMTF.py
 ```
@@ -97,3 +98,21 @@ optional arguments:
   --store STORE  Store output measured DQE curve
   --name NAME    Label to store with measured DQE curve (default basename of file)
 ```
+
+## References
+
+MTF and NPS measurements and calculation methods were primarily based on these two papers:
+
+* G. McMullan, S. Chen, R. Henderson, A. R. Faruqi, Detective quantum efficiency of electron area detectors in electron microscopy. Ultramicroscopy. 109, 1126–1143 (2009). https://doi.org/10.1016/j.ultramic.2009.04.002
+* K. A. Paton, M. C. Veale, X. Mu, C. S. Allen, D. Maneuski, C. Kübel, V. O’Shea, A. I. Kirkland, D. McGrouther, Quantifying the performance of a hybrid pixel detector with GaAs:Cr sensor for transmission electron microscopy. Ultramicroscopy. 227, 113298 (2021). https://doi.org/10.1016/j.ultramic.2021.113298
+
+### Published MTF and DQE curves
+
+MTF curves are from Relion STAR files:
+
+https://github.com/3dem/relion/tree/ver3.1/data
+
+DQE curves for Falcon3 at 300 kV are extracted from here:
+
+* M. Kuijper, G. van Hoften, B. Janssen, R. Geurink, S. D. Carlo, M. Vos, G. van Duinen, B. van Haeringen, M. Storms, FEI’s direct electron detector developments: Embarking on a revolution in cryo-TEM. J Struct Biol. 192, 179–187 (2015). https://doi.org/10.1016/j.jsb.2015.09.014
+
