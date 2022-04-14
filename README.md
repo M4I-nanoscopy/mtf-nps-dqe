@@ -26,8 +26,8 @@ Requires Python3 > 3.7
 
 In a Python3 virtualenv install the requirements.
 ```bash
-python3 -m venv dqe-mtf-venv
-source dqe-mtf-venv/bin/activate
+python3 -m venv mtf-nps-dqe-venv
+source mtf-nps-dqe-venv/bin/activate
 pip3 install -r requirements.txt
 ```
 
@@ -84,6 +84,11 @@ optional arguments:
   --store STORE         Store output measured MTF curve
 ```
 
+To use a simulated image stack simple run:
+```bash
+python3 nps/measureNPS.py
+```
+
 ### Plotting NPS
 
 ```bash
@@ -117,7 +122,7 @@ MTF and NPS measurements and calculation methods were primarily based on these t
 * G. McMullan, S. Chen, R. Henderson, A. R. Faruqi, Detective quantum efficiency of electron area detectors in electron microscopy. Ultramicroscopy. 109, 1126–1143 (2009). https://doi.org/10.1016/j.ultramic.2009.04.002
 * K. A. Paton, M. C. Veale, X. Mu, C. S. Allen, D. Maneuski, C. Kübel, V. O’Shea, A. I. Kirkland, D. McGrouther, Quantifying the performance of a hybrid pixel detector with GaAs:Cr sensor for transmission electron microscopy. Ultramicroscopy. 227, 113298 (2021). https://doi.org/10.1016/j.ultramic.2021.113298
 
-Additional inspiration for how to measure the edge spread function from a slanted edge was also from:
+Additional inspiration on how to measure the edge spread function from a slanted edge was also from:
 
 * https://github.com/u-onder/mtf.py
 
@@ -131,3 +136,15 @@ DQE curves for Falcon3 at 300 kV are extracted from here:
 
 * M. Kuijper, G. van Hoften, B. Janssen, R. Geurink, S. D. Carlo, M. Vos, G. van Duinen, B. van Haeringen, M. Storms, FEI’s direct electron detector developments: Embarking on a revolution in cryo-TEM. J Struct Biol. 192, 179–187 (2015). https://doi.org/10.1016/j.jsb.2015.09.014
 
+## Authors
+
+* Paul van Schayck - p.vanschayck@maastrichtuniversity.nl
+* Yue Zhang - yue.zhang@maastrichtuniveristy.nl
+
+## Copyright
+
+Maastricht University
+
+## License
+
+MIT license
