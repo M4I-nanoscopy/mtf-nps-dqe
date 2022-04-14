@@ -39,7 +39,7 @@ $ python3 mtf/measureMTF.py --help
 usage: measureMTF.py [-h] [-x X] [-y Y] [--width WIDTH] [--height HEIGHT] [--store STORE] [--super_res SUPER_RES] [--rotate ROTATE] [FILE]
 
 positional arguments:
-  FILE                  Input image (tif). If none supplied, an edge will be simulated
+  FILE                  Input image (tif or mrc). If none supplied, an edge will be simulated
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -48,8 +48,7 @@ optional arguments:
   --width WIDTH         Width of crop
   --height HEIGHT       Height of crop
   --store STORE         Store output measured MTF curve
-  --super_res SUPER_RES
-                        Rescale the frequency of the measured MTF curve by this factor
+  --super_res SUPER_RES Rescale the frequency of the measured MTF curve by this factor
   --rotate ROTATE       Number of times to rotate the image clockwise
 ```
 Starting without coordinates will show a dialog to select the area for cropping:
@@ -66,7 +65,7 @@ python3 mtf/measureMTF.py
 ### Plotting MTF
 
 ```bash
-python3 mtf/mtf.py --input data/mtf/*.npz
+python3 mtf/mtf.py --published --input data/mtf/*.npz --output mtf.svg 
 ```
 
 
@@ -85,6 +84,12 @@ optional arguments:
   --store STORE         Store output measured MTF curve
 ```
 
+### Plotting NPS
+
+```bash
+python3 nps/nps.py --input data/nps/*.npz --output nps.svg 
+```
+
 ### DQE
 ```bash
 $ python3 dqe/calculateDQE.py --help
@@ -92,11 +97,17 @@ usage: calculateDQE.py [-h] --mtf MTF --nps NPS [--dqe0 DQE0] [--store STORE] [-
 
 optional arguments:
   -h, --help     show this help message and exit
-  --mtf MTF      Input measured MTF curve
-  --nps NPS      Input measured NPS curve
+  --mtf MTF      Input measured MTF curve (.npz)
+  --nps NPS      Input measured NPS curve (.npz)
   --dqe0 DQE0    Assumed DQE(0)
   --store STORE  Store output measured DQE curve
   --name NAME    Label to store with measured DQE curve (default basename of file)
+```
+
+### Plotting DQE
+
+```bash
+python3 dqe/dqe.py --published --input data/dqe/*.npz --output dqe.svg 
 ```
 
 ## References
@@ -105,6 +116,10 @@ MTF and NPS measurements and calculation methods were primarily based on these t
 
 * G. McMullan, S. Chen, R. Henderson, A. R. Faruqi, Detective quantum efficiency of electron area detectors in electron microscopy. Ultramicroscopy. 109, 1126–1143 (2009). https://doi.org/10.1016/j.ultramic.2009.04.002
 * K. A. Paton, M. C. Veale, X. Mu, C. S. Allen, D. Maneuski, C. Kübel, V. O’Shea, A. I. Kirkland, D. McGrouther, Quantifying the performance of a hybrid pixel detector with GaAs:Cr sensor for transmission electron microscopy. Ultramicroscopy. 227, 113298 (2021). https://doi.org/10.1016/j.ultramic.2021.113298
+
+Additional inspiration for how to measure the edge spread function from a slanted edge was also from:
+
+* https://github.com/u-onder/mtf.py
 
 ### Published MTF and DQE curves
 

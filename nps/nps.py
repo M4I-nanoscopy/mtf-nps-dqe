@@ -14,10 +14,12 @@ plt.rcParams.update({
     "lines.linewidth" : 3
 })
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--input', nargs='+', type=str, required=True, help='Input measured NPS curves (can be multiple)')
+    parser.add_argument('--output', type=str, required=False, help='Output image file (SVG) to store to')
 
     return parser.parse_args()
 
@@ -28,6 +30,7 @@ def load_nps(f):
 
 
 config = parse_arguments()
+plt.figure(figsize=(7, 7))
 
 for input_f in config.input:
     w, nps = load_nps(input_f)
@@ -35,11 +38,19 @@ for input_f in config.input:
     plt.plot(w, nps, label=os.path.basename(input_f))
 
 
-plt.legend()
+plt.legend(loc='lower left')
 plt.xlim([0, 1.0])
 plt.ylim([0, 1.1])
 plt.xlabel("Spatial frequency (fraction of Nyquist)")
 plt.title("NPS")
 plt.grid()
 plt.gca().set_aspect('equal', adjustable='box')
-plt.show()
+
+if config.output is not None:
+    plt.rcParams.update({
+        "font.sans-serif": "Arial"
+    })
+    plt.tight_layout()
+    plt.savefig(config.output, dpi=300, bbox_inches='tight', pad_inches=0.1)
+else:
+    plt.show()
