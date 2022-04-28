@@ -20,7 +20,7 @@ setup(
         "numpy>=1.16.0,<2.0.0",
         "tqdm>=4.0.0,<5.0",
         "mrcfile>1.0.0,<2.0.0",
-        "scikit-image>0.17<1.0.0"
+        "scikit-image>0.17,<1.0.0"
     ],
     # package_data={ },
     author="Paul van Schayck",
@@ -35,18 +35,21 @@ setup(
     classifiers=[
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Development Status :: 4 - Beta",
         "Environment :: Console",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
-        "Operating System :: OS Independent",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering :: Image Processing",
+        "Operating System :: OS Independent",
         "Operating System :: Microsoft :: Windows",
-        "Operating System :: Unix",
+        "Operating System :: POSIX :: Linux"
     ],
     entry_points={
         'console_scripts': [
             'measureMTF = mtf.measureMTF:main',
+            'measureNPS = mtf.measureNPS:main',
         ], }
 )
