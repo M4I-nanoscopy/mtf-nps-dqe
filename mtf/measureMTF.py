@@ -9,12 +9,12 @@ import scipy.optimize
 from matplotlib import patches
 from matplotlib.widgets import RectangleSelector
 import mrcfile
-from scipy.ndimage import binary_dilation, sobel
-from scipy.special import erfc, erf
+from scipy.ndimage import binary_dilation, sobel, gaussian_filter
+from scipy.special import erfc
 from scipy.stats import linregress
 from skimage import io
 from skimage.filters.thresholding import threshold_mean
-from skimage.transform import rotate
+from skimage.transform import rotate, downscale_local_mean
 
 from lib import utils
 
@@ -22,7 +22,7 @@ from lib import utils
 def parse_arguments():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('FILE', default=None, nargs='?', help="Input image (tif). If none supplied, an edge will be simulated")
+    parser.add_argument('FILE', default=None, nargs='?', help="Input image (tif or mrc). If none supplied, an edge will be simulated")
     parser.add_argument('-x', default=None, type=int, help="Starting x coordinate of crop")
     parser.add_argument('-y', default=None, type=int, help="Starting y coordinate of crop")
     parser.add_argument('--width', default=None, type=int, help="Width of crop")
@@ -30,6 +30,14 @@ def parse_arguments():
     parser.add_argument('--store', type=str, help='Store output measured MTF curve')
     parser.add_argument('--super_res', default=1, type=int, help='Rescale the frequency of the measured MTF curve by this factor')
     parser.add_argument('--rotate', default=0, type=int, help='Number of times to rotate the image clockwise')
+
+    sim_group = parser.add_argument_group('simulate edge parameters')
+    sim_group.add_argument('--gauss', type=float, default=0, help="Gaussian sigma used for blurring of image")
+    sim_group.add_argument('--hann', default=False, action='store_true', help="Apply Hann filter (after fourier binning)")
+    sim_group.add_argument('--sim_super_res', type=int, default=1, help="Simulate super res factor")
+    sim_group.add_argument('--factor', type=int, default=1, help="Initial upscale factor")
+    sim_group.add_argument('--real', default=False, action='store_true', help="Perform operations in real space")
+    sim_group.add_argument('--noise', default=False, action='store_true', help="Add Poission noise to illuminated area")
 
     settings = parser.parse_args()
 
@@ -80,20 +88,69 @@ config = parse_arguments()
 
 if config.FILE is None:
     print("INFO: No image supplied, simulating ideal edge")
-    im = np.zeros((512, 512), dtype=np.float64)
+    factor = config.factor
+    super_res = config.sim_super_res
+    org_shape = 512
+    shape = 512 * factor
+    gauss = config.gauss
+
+    im = np.zeros((shape, shape))
+
+    # Keep illumination constant, when changing factor
+    ill = 100 / factor**2
+    ill_noise = 10/factor**2
 
     # Add illuminated area
-    im[0:512*factor, 256*factor:512*factor] = 10
+    if config.noise:
+        im[0:shape, shape // 2:shape] = np.random.normal(ill, ill_noise, (shape, shape//2))
+    else:
+        im[0:shape, shape//2:shape] = ill
 
     # Rotate image
     im = rotate(im, 7, mode='constant', cval=0)
 
+    # Do operations in real space or fourier space
+    if config.real:
+        if config.gauss > 0:
+            im = gaussian_filter(im, gauss * factor)
+
+        # Bin
+        if config.factor > 1:
+            im = downscale_local_mean(im, factor // super_res)
+    else:
+        # FFT
+        fim = utils.ft(im)
+
+        # Gaussian filter
+        if gauss > 0:
+            fg = utils.get_gaussian_filter(gauss * factor, shape)
+            fim = fim*fg
+
+        # Fourier crop (bin)
+        if config.factor > 1:
+            #fim = utils.fourier_crop_bin(fim, factor / super_res)
+            fim = utils.bin_mic(fim, 1/factor, super_res/2, mic_freqs=utils.get_mic_freqs(im, 1/factor))
+
+        if config.hann:
+            fh = utils.get_hann_filter(org_shape*super_res)
+            fim = fim*fh
+
+        # Inverse FFT
+        im = utils.ift(fim)
+
     # Supply defaults
-    config.FILE = "Simulated"
-    config.x = 128
-    config.y = 128
-    config.width = 256
-    config.height = 256
+    config.FILE = "Simulated (real:{}, gauss:{}, hann:{}, sim_super_res:{}, factor:{}, noise:{})".format(
+        config.real,
+        config.gauss,
+        config.hann,
+        config.sim_super_res,
+        config.factor,
+        config.noise
+    )
+    config.x = 128 * super_res
+    config.y = 128 * super_res
+    config.width = 256 * super_res
+    config.height = 256 * super_res
 else:
     ext = os.path.splitext(config.FILE)[1]
 

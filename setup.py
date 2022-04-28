@@ -50,6 +50,6 @@ setup(
     entry_points={
         'console_scripts': [
             'measureMTF = mtf.measureMTF:main',
-            'measureNPS = mtf.measureNPS:main',
+            'measureNPS = nps.measureNPS:main',
         ], }
 )

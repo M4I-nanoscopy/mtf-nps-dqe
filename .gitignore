@@ -2,3 +2,4 @@ data/star/*
 data/*
 *.sh
 *.egg-info/*
+.idea
