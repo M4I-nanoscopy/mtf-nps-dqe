@@ -22,21 +22,29 @@ the detector. For example by using a Faraday cup, mounted close to the detector.
 
 ## Installation
 
-Requires Python3 > 3.7
+Requires Python3 >= 3.8
 
 In a Python3 virtualenv install the requirements.
 ```bash
 python3 -m venv mtf-nps-dqe-venv
 source mtf-nps-dqe-venv/bin/activate
-pip3 install -r requirements.txt
+pip3 install git+https://github.com/M4I-nanoscopy/mtf-nps-dqe.git#egg=mtf-nps-dqe
+```
+
+For development, consider installing like this:
+```bash
+python3 -m venv mtf-nps-dqe-venv
+source mtf-nps-dqe-venv/bin/activate
+git clone https://github.com/M4I-nanoscopy/mtf-nps-dqe.git
+pip3 install -e mtf-nps-dqe/ 
 ```
 
 ## Running
 
 ### MTF
 ```bash
-$ python3 mtf/measureMTF.py --help
-usage: measureMTF.py [-h] [-x X] [-y Y] [--width WIDTH] [--height HEIGHT] [--store STORE] [--super_res SUPER_RES] [--rotate ROTATE] [FILE]
+$ measureMTF --help
+usage: measureMTF [-h] [-x X] [-y Y] [--width WIDTH] [--height HEIGHT] [--store STORE] [--super_res SUPER_RES] [--rotate ROTATE] [FILE]
 
 positional arguments:
   FILE                  Input image (tif or mrc). If none supplied, an edge will be simulated
@@ -54,12 +62,12 @@ optional arguments:
 Starting without coordinates will show a dialog to select the area for cropping:
 
 ```bash
-python3 mtf/measureMTF.py data/edge/simulated/ideal-edge-no-noise.tif
+measureMTF data/edge/simulated/ideal-edge-no-noise.tif
 ```
 
 To use a simulated edge simple run:
 ```bash
-python3 mtf/measureMTF.py
+measureMTF
 ```
 
 ### Plotting MTF
@@ -71,7 +79,7 @@ python3 mtf/mtf.py --published --input data/mtf/*.npz --output mtf.svg
 
 ### NPS
 ```bash
-$ python3 nps/measureNPS.py --help
+$ measureNPS --help
 usage: measureNPS.py [-h] [--super_res SUPER_RES] [--store STORE] [FILE]
 
 positional arguments:
@@ -86,7 +94,7 @@ optional arguments:
 
 To use a simulated image stack simple run:
 ```bash
-python3 nps/measureNPS.py
+$ measureNPS
 ```
 
 ### Plotting NPS

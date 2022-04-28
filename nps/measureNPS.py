@@ -238,3 +238,12 @@ plt.show()
 
 if config.store is not None:
     np.savez(config.store, w=w, nps=nnps_1d)
+
+
+# TODO: This is not a very clean way around the fact that this script should be refactored
+def main():
+    pass
+
+
+if __name__ == "main":
+    main()
