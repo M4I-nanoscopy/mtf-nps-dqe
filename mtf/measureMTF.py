@@ -16,6 +16,8 @@ from skimage import io
 from skimage.filters.thresholding import threshold_mean
 from skimage.transform import rotate
 
+from lib import utils
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
@@ -50,13 +52,6 @@ def esf(x, lam, x0):
         return erfc(-(x - x0) / lam) / 2
 
 
-# Edge spread function (ESF)
-# Paton et al., 2021. Eq. 1
-def esf_fit(x, lam, x0):
-    with np.errstate(divide='ignore', invalid='ignore'):
-        return (1 + erf((x - x) / lam)) / 2
-
-
 # Line spread function (LSF).
 # McMullan et al. 2009 Eq 11
 def lsf(x, lam, x0):
@@ -88,7 +83,7 @@ if config.FILE is None:
     im = np.zeros((512, 512), dtype=np.float64)
 
     # Add illuminated area
-    im[0:512, 256:512] = 400
+    im[0:512*factor, 256*factor:512*factor] = 10
 
     # Rotate image
     im = rotate(im, 7, mode='constant', cval=0)
@@ -305,3 +300,12 @@ plt.show()
 
 if config.store is not None:
     np.savez(config.store, w=mtf_calc_w, mtf=mtf_calc)
+
+
+# TODO: This is not a very clean way around the fact that this script should be refactored
+def main():
+    pass
+
+
+if __name__ == "main":
+    main()

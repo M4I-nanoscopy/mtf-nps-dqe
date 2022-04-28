@@ -1,3 +1,4 @@
-star/*
+data/star/*
 data/*
 *.sh
+*.egg-info/*
