@@ -54,7 +54,7 @@ optional arguments:
 Starting without coordinates will show a dialog to select the area for cropping:
 
 ```bash
-python3 mtf/measureMTF.py data/edge/image.tif
+python3 mtf/measureMTF.py data/edge/simulated/ideal-edge-no-noise.tif
 ```
 
 To use a simulated edge simple run:
