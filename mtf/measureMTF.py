@@ -34,6 +34,7 @@ def parse_arguments():
     sim_group = parser.add_argument_group('simulate edge parameters')
     sim_group.add_argument('--gauss', type=float, default=0, help="Gaussian sigma used for blurring of image")
     sim_group.add_argument('--hann', default=False, action='store_true', help="Apply Hann filter (after fourier binning)")
+    sim_group.add_argument('--bw', default=False, action='store_true', help="Apply Butterworth low-pass filter (during fourier binning)")
     sim_group.add_argument('--sim_super_res', type=int, default=1, help="Simulate super res factor")
     sim_group.add_argument('--factor', type=int, default=1, help="Initial upscale factor")
     sim_group.add_argument('--real', default=False, action='store_true', help="Perform operations in real space")
@@ -128,8 +129,7 @@ if config.FILE is None:
 
         # Fourier crop (bin)
         if config.factor > 1:
-            #fim = utils.fourier_crop_bin(fim, factor / super_res)
-            fim = utils.bin_mic(fim, 1/factor, super_res/2, mic_freqs=utils.get_mic_freqs(im, 1/factor))
+            fim = utils.bin_mic_ft(fim, 1 / factor, super_res / 2, mic_freqs=utils.get_mic_freqs(im, 1 / factor), lp=config.bw)
 
         if config.hann:
             fh = utils.get_hann_filter(org_shape*super_res)
@@ -139,10 +139,11 @@ if config.FILE is None:
         im = utils.ift(fim)
 
     # Supply defaults
-    config.FILE = "Simulated (real:{}, gauss:{}, hann:{}, sim_super_res:{}, factor:{}, noise:{})".format(
+    config.FILE = "Simulated (real:{}, gauss:{}, hann:{}, bw:{}, sim_super_res:{}, factor:{}, noise:{})".format(
         config.real,
         config.gauss,
         config.hann,
+        config.bw,
         config.sim_super_res,
         config.factor,
         config.noise

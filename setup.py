@@ -20,7 +20,8 @@ setup(
         "numpy>=1.16.0,<2.0.0",
         "tqdm>=4.0.0,<5.0",
         "mrcfile>1.0.0,<2.0.0",
-        "scikit-image>0.17,<1.0.0"
+        "scikit-image>0.17,<1.0.0",
+        "pandas>1.0.0,<2.0.0"
     ],
     # package_data={ },
     author="Paul van Schayck",
