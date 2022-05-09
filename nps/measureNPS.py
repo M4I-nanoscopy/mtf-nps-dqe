@@ -121,7 +121,7 @@ if config.FILE is None:
     ill_noise = 10/factor**2
 
     # Simulate flat fields
-    frames = np.random.normal(ill, ill_noise, (25, shape, shape)).astype(np.uint8)
+    frames = np.random.normal(ill, ill_noise, (100, shape, shape)).astype(np.uint8)
 
     # Do operations in real space or fourier space
     if config.real:
@@ -144,7 +144,7 @@ if config.FILE is None:
         # Fourier crop (bin)
         if config.factor > 1:
             mic_freqs = utils.get_mic_freqs(frames[0], 1 / factor)
-            ft_frames = utils.bin_mic_ft(ft_frames, 1 / factor, super_res / 2, mic_freqs=mic_freqs, lp=config.bw, bwo=2)
+            ft_frames = utils.bin_mic_ft(ft_frames, 1 / factor, super_res / 2, mic_freqs=mic_freqs, lp=config.bw)
 
         if config.hann:
             fh = utils.get_hann_filter(org_shape*super_res)
