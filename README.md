@@ -20,6 +20,10 @@ Using the MTF and NPS, the DQE can be calculated. Hereby is DQE(0) (a scaling fa
 To actually measure DQE(0) you need an accurate way to measure the true conversion factor (counts out/flux in) of 
 the detector. For example by using a Faraday cup, mounted close to the detector.  
 
+## Simulations
+Both measureMTF and measureNPS have extensive options to simulate knife edges and flat field noise image stacks. 
+It's possible to simulate things like super resolution and gaussian filters. 
+
 ## Installation
 
 Requires Python3 >= 3.8
@@ -39,6 +43,7 @@ git clone https://github.com/M4I-nanoscopy/mtf-nps-dqe.git
 pip3 install -e mtf-nps-dqe/ 
 ```
 
+In either case, the tools should be available in your PATH with the virtualenv activated.
 ## Running
 
 ### MTF

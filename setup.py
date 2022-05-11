@@ -23,7 +23,10 @@ setup(
         "scikit-image>0.17,<1.0.0",
         "pandas>1.0.0,<2.0.0"
     ],
-    # package_data={ },
+    package_data={
+        'mtf': ['published/*'],
+        'dqe': ['published/*']
+    },
     author="Paul van Schayck",
     description="Python scripts for measuring MTF and NPS, and thereby calculating DQE.",
     long_description=long_description,

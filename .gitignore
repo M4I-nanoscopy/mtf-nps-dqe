@@ -3,3 +3,4 @@ data/*
 *.sh
 *.egg-info/*
 .idea
+build/*

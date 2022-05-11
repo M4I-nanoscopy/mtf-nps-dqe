@@ -41,7 +41,7 @@ plt.figure(figsize=(10,10))
 plt.axis('equal')
 matplotlib.rcParams['lines.linewidth'] = 2
 
-with open('../data/published/FEI-fIII.csv', 'r') as csvfile:
+with open('published/FEI-fIII.csv', 'r') as csvfile:
     # Skip header
     next(csvfile, None)
 

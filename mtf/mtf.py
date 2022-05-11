@@ -18,7 +18,7 @@ plt.rcParams.update({
 def parse_arguments():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--input', nargs='+', type=str, required=True, help='Input measured MTF curves (can be multiple)')
+    parser.add_argument('--input', nargs='+', type=str, required=False, help='Input measured MTF curves (can be multiple)')
     parser.add_argument('--published', default=False, action='store_true', help='Also plot published MTF curves')
     parser.add_argument('--output', type=str, required=False, help='Output image file (SVG) to store to')
 
@@ -37,7 +37,8 @@ def load_mtf(f):
 
 
 def load_published_star(f):
-    d = pandas.read_csv(f, delimiter=' ')
+    path = os.path.dirname(os.path.realpath(__file__))
+    d = pandas.read_csv(path + "/published/" + f, delimiter=' ')
 
     # Relion stores MTF as 1/pixel, and not as fraction of Nyquist
     w_relion = d['_rlnResolutionInversePixel'] * 2
@@ -48,22 +49,23 @@ def load_published_star(f):
 config = parse_arguments()
 plt.figure(figsize=(7, 7))
 
-for input_f in config.input:
-    w, mtf = load_mtf(input_f)
+if config.input is not None:
+    for input_f in config.input:
+        w, mtf = load_mtf(input_f)
 
-    plt.plot(w, mtf, label=os.path.basename(input_f))
+        plt.plot(w, mtf, label=os.path.basename(input_f))
 
 w_calc = np.arange(0, 1.1, 0.01)
 plt.plot(w_calc, theoretical_mtf(w_calc), '--', color='Black', label='Theoretical')
 
 if config.published:
-    w, mtf = load_published_star('data/published/mtf_f3ec_200kv.star')
+    w, mtf = load_published_star('mtf_f3ec_200kv.star')
     plt.plot(w, mtf, label='Published Falcon III EC (200 kV)')
 
-    w, mtf = load_published_star('data/published/mtf_f3ec_300kv.star')
+    w, mtf = load_published_star('mtf_f3ec_300kv.star')
     plt.plot(w, mtf, label='Published Falcon III EC (300 kV)')
 
-    w, mtf = load_published_star('data/published/falconIII200_int.star')
+    w, mtf = load_published_star('falconIII200_int.star')
     plt.plot(w, mtf, label='Published Falcon III int (200 kV)')
 
 plt.legend(loc='lower left')
