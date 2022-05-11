@@ -82,6 +82,21 @@ python3 mtf/mtf.py --published --input data/mtf/*.npz --output mtf.svg
 ```
 
 
+### star MTF file for Relion
+You can generate a star file to use the measured MTF in Relion. 
+
+```bash
+$ starMTF --help
+usage: starMTF [-h] [--output OUTPUT] FILE
+
+positional arguments:
+  FILE             Input MTF .npz file
+
+options:
+  -h, --help       show this help message and exit
+  --output OUTPUT  Output file (.star)
+```
+
 ### NPS
 ```bash
 $ measureNPS --help
@@ -148,6 +163,15 @@ https://github.com/3dem/relion/tree/ver3.1/data
 DQE curves for Falcon3 at 300 kV are extracted from here:
 
 * M. Kuijper, G. van Hoften, B. Janssen, R. Geurink, S. D. Carlo, M. Vos, G. van Duinen, B. van Haeringen, M. Storms, FEI’s direct electron detector developments: Embarking on a revolution in cryo-TEM. J Struct Biol. 192, 179–187 (2015). https://doi.org/10.1016/j.jsb.2015.09.014
+* G. McMullan, A. R. Faruqi, D. Clare, R. Henderson, Comparison of optimal performance at 300keV of three direct electron detectors for use in low dose electron microscopy. Ultramicroscopy. 147, 156–163 (2014). https://doi.org/10.1016/j.ultramic.2014.08.002
+
+## TODOs
+Making these scripts into a package was mostly an afterthought. Some things need still to be fixed as a result.
+
+* Refactor measureMTF and measureNPS to truly run from main()
+* We're creating too many packages, refactor to one package with several modules
+* Include entry point for scripts
+* Better script names for plotting
 
 ## Authors
 

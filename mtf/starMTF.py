@@ -1,32 +1,51 @@
+import argparse
 import sys
 import numpy as np
 
-energy = sys.argv[1]
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('FILE', default=None, help="Input MTF .npz file")
+    parser.add_argument('--output', type=str, required=False, help='Output file (.star)')
+
+    settings = parser.parse_args()
+
+    return settings
 
 
-def star_mtf(filename, output, energy, method):
+def star_mtf(filename):
+    r = "data_mtf\n"
+    r += "loop_\n"
+    r += "_rlnResolutionInversePixel\n"
+    r += "_rlnMtfValue\n"
+    r += "0 1\n"
+
     with np.load(filename) as data:
         mtf = data['mtf']
-        freq = data['u']
+        # measureMTF stores the frequency as fraction of Nyquist. Relion wants 1/pixel, so divide frequency by 2.
+        w = data['w'] / 2
 
-    with open(output, "w") as f:
-        f.write("data_mtf_tpx3_%s_%s\n" % (energy, method))
-        f.write("loop_\n")
-        f.write("_rlnResolutionInversePixel\n")
-        f.write("_rlnMtfValue\n")
-        f.write("0 1\n")
+        for idx, fr in enumerate(w[w <= 0.5]):
+            r += "%.6f %.6f\n" % (fr, mtf[idx])
 
-        for idx, fr in enumerate(freq[freq <= 0.5]):
-            print("%.6f %.6f\n" % (fr, mtf[1][idx]))
-            f.write("%.6f %.6f\n" % (fr, mtf[1][idx]))
+    return r
 
-# Star file
-star_mtf('data/erik_frodjh_20200110/timepix-'+energy+'kv-clusters.npz', 'star/tpx3_' + energy + 'kv_hits.star', energy, 'hits')
-star_mtf('data/erik_frodjh_20200110/timepix-'+energy+'kv-random.npz', 'star/tpx3_' + energy + 'kv_random.star', energy, 'random')
-star_mtf('data/erik_frodjh_20200110/timepix-'+energy+'kv-centroid.npz', 'star/tpx3_' + energy + 'kv_centroid.star', energy, 'centroid')
-star_mtf('data/erik_frodjh_20200110/timepix-'+energy+'kv-highest_toa.npz', 'star/tpx3_' + energy + 'kv_highest_toa.star', energy, 'highest_toa')
-star_mtf('data/erik_frodjh_20200110/timepix-'+energy+'kv-highest_tot.npz', 'star/tpx3_' + energy + 'kv_highest_tot.star', energy, 'highest_tot')
-star_mtf('data/erik_frodjh_20200110/timepix-'+energy+'kv-cnn-tot.npz', 'star/tpx3_' + energy + 'kv_cnn_tot.star', energy, 'cnn_tot')
-star_mtf('data/erik_frodjh_20200110/timepix-'+energy+'kv-cnn-tottoa.npz', 'star/tpx3_' + energy + 'kv_cnn_tottoa.star', energy, 'cnn_tottoa')
-star_mtf('data/erik_frodjh_20200110/timepix-'+energy+'kv-cnn-tot-sr.npz', 'star/tpx3_' + energy + 'kv_cnn_tot_sr.star', energy, 'cnn_tot_sr')
+
+def main():
+    config = parse_arguments()
+
+    star = star_mtf(config.FILE)
+
+    if config.output is not None:
+        with open(config.output, "w") as f:
+            f.write(star)
+    else:
+        print(star)
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
 

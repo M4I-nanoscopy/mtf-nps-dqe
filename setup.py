@@ -55,5 +55,6 @@ setup(
         'console_scripts': [
             'measureMTF = mtf.measureMTF:main',
             'measureNPS = nps.measureNPS:main',
+            'starMTF = mtf.starMTF:main'
         ], }
 )
