@@ -36,7 +36,7 @@ source mtf-nps-dqe-venv/bin/activate
 pip3 install git+https://github.com/M4I-nanoscopy/mtf-nps-dqe.git#egg=mtf-nps-dqe
 ```
 
-For development, consider installing with the `-e` flat liek this
+For development, consider installing with the `-e` flag like this
 ```bash
 python3 -m venv mtf-nps-dqe-venv
 source mtf-nps-dqe-venv/bin/activate

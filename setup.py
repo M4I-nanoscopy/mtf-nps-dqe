@@ -13,6 +13,7 @@ setup(
     name="mtf-nps-dqe",
     version="0.9.0",
     packages=find_packages(),
+    setup_requires=["wheel"],
     install_requires=[
         "matplotlib>=3.0.0,<4.0.0",
         "Pillow>9.0.0,<10.0.0",
