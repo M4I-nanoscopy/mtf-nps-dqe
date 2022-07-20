@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/477618248.svg)](https://zenodo.org/badge/latestdoi/477618248)
+
 # Measuring/calculating MTF, NPS and DQE
 
 Scripts for measuring MTF and NPS, and thereby calculating DQE. Useful for 
@@ -193,6 +195,14 @@ Making these scripts into a package was mostly an afterthought. Some things need
 * Refactor all scripts to truly run from main(), this now done with a hack in setup.py
   * This currently causes all exceptions to occur during library loading
 * Better script names for plotting
+
+## Citing
+[![DOI](https://zenodo.org/badge/477618248.svg)](https://zenodo.org/badge/latestdoi/477618248)
+
+When using this code, please consider citing this Zenodo entry
+
+* https://doi.org/10.5281/zenodo.6867807
+
 
 ## Authors
 
