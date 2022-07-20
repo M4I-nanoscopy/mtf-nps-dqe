@@ -82,6 +82,7 @@ if config.output is not None:
 else:
     plt.show()
 
+
 # TODO: This is not a very clean way around the fact that this script should be refactored
 def main():
     pass

@@ -91,7 +91,7 @@ measureMTF
 ### Plotting MTF
 
 ```bash
-mtf --published --input data/mtf/*.npz --output mtf.svg 
+plotMTF --published --input data/mtf/*.npz --output mtf.svg 
 ```
 
 
@@ -143,7 +143,7 @@ $ measureNPS
 ### Plotting NPS
 
 ```bash
-nps --input data/nps/*.npz --output nps.svg 
+plotNPS --input data/nps/*.npz --output nps.svg 
 ```
 
 ### DQE
@@ -162,7 +162,7 @@ options:
 ### Plotting DQE
 
 ```bash
-dqe --published --input data/dqe/*.npz --output dqe.svg 
+plotDQE --published --input data/dqe/*.npz --output dqe.svg 
 ```
 
 ## References

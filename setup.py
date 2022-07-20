@@ -56,8 +56,8 @@ setup(
             'measureNPS = mtf_nps_dqe.nps.measureNPS:main',
             'calculateDQE = mtf_nps_dqe.dqe.calculateDQE:main',
             'starMTF = mtf_nps_dqe.mtf.starMTF:main',
-            'mtf = mtf_nps_dqe.mtf.mtf:main',
-            'nps = mtf_nps_dqe.nps.nps:main',
-            'dqe = mtf_nps_dqe.dqe.dqe:main',
+            'plotMTF = mtf_nps_dqe.mtf.plotMTF:main',
+            'plotNPS = mtf_nps_dqe.nps.plotNPS:main',
+            'plotDQE = mtf_nps_dqe.dqe.plotDQE:main',
         ], }
 )
