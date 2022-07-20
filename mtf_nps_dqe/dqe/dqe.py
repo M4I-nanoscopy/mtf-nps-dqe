@@ -77,3 +77,12 @@ if config.output is not None:
     plt.savefig(config.output, dpi=300, bbox_inches='tight', pad_inches=0.1)
 else:
     plt.show()
+
+# TODO: This is not a very clean way around the fact that this script should be refactored
+def main():
+    pass
+
+
+if __name__ == "__main__":
+    main()
+

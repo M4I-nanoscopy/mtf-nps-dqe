@@ -71,3 +71,12 @@ plt.show()
 
 if config.store is not None:
     np.savez(config.store, w=nps_freq_w, dqe=dqe_meas, label=name)
+
+
+# TODO: This is not a very clean way around the fact that this script should be refactored
+def main():
+    pass
+
+
+if __name__ == "__main__":
+    main()

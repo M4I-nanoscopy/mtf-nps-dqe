@@ -52,8 +52,12 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'measureMTF = mtf.measureMTF:main',
-            'measureNPS = nps.measureNPS:main',
-            'starMTF = mtf.starMTF:main'
+            'measureMTF = mtf_nps_dqe.mtf.measureMTF:main',
+            'measureNPS = mtf_nps_dqe.nps.measureNPS:main',
+            'calculateDQE = mtf_nps_dqe.dqe.calculateDQE:main',
+            'starMTF = mtf_nps_dqe.mtf.starMTF:main',
+            'mtf = mtf_nps_dqe.mtf.mtf:main',
+            'nps = mtf_nps_dqe.nps.nps:main',
+            'dqe = mtf_nps_dqe.dqe.dqe:main',
         ], }
 )
