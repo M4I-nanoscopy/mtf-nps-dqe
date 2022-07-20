@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.fft import rfft2, irfft2, rfftfreq, fftfreq, fft2, fftshift
-import matplotlib.pyplot as plt
 
 
 def ft(mic):

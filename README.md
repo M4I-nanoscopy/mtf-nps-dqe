@@ -169,7 +169,6 @@ DQE curves for Falcon3 at 300 kV are extracted from here:
 Making these scripts into a package was mostly an afterthought. Some things need still to be fixed as a result.
 
 * Refactor measureMTF and measureNPS to truly run from main()
-* We're creating too many packages, refactor to one package with several modules
 * Include entry point for scripts
 * Better script names for plotting
 

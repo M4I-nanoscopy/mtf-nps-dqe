@@ -3,14 +3,13 @@ import matplotlib.pyplot as plt
 import mrcfile
 import numpy as np
 import os
-from numpy.fft import rfft2, irfft2
-from numpy.fft import rfftfreq, fftfreq
 from numpy.fft import fft2, fftshift
 from scipy.ndimage import gaussian_filter
 from scipy.optimize import curve_fit
 from skimage.transform import downscale_local_mean
 
-from lib import utils
+from mtf_nps_dqe.lib import utils
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser()

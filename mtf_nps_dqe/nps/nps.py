@@ -1,15 +1,12 @@
 import argparse
-import csv
 import os.path
 
 import matplotlib.pyplot as plt
-import matplotlib
 import numpy as np
-import pandas
 
 plt.rcParams.update({
     "font.size": 12,
-    "font.family": 'sans-serif',
+    "font.family": 'Arial',
     "svg.fonttype": 'none',
     "lines.linewidth" : 3
 })
@@ -47,9 +44,6 @@ plt.grid()
 plt.gca().set_aspect('equal', adjustable='box')
 
 if config.output is not None:
-    plt.rcParams.update({
-        "font.sans-serif": "Arial"
-    })
     plt.tight_layout()
     plt.savefig(config.output, dpi=300, bbox_inches='tight', pad_inches=0.1)
 else:

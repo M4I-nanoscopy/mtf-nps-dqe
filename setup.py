@@ -24,8 +24,7 @@ setup(
         "pandas>1.0.0,<2.0.0"
     ],
     package_data={
-        'mtf': ['published/*'],
-        'dqe': ['published/*']
+        'mtf_nps_dqe': ['mtf/published/*', 'dqe/published/*'],
     },
     author="Paul van Schayck",
     description="Python scripts for measuring MTF and NPS, and thereby calculating DQE.",

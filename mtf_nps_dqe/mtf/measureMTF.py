@@ -16,7 +16,7 @@ from skimage import io
 from skimage.filters.thresholding import threshold_mean
 from skimage.transform import rotate, downscale_local_mean
 
-from lib import utils
+from mtf_nps_dqe.lib import utils
 
 
 def parse_arguments():
