@@ -1,12 +1,12 @@
 # Measuring/calculating MTF, NPS and DQE
 
 Scripts for measuring MTF and NPS, and thereby calculating DQE. Useful for 
-evaluating low-dose cryogenic electron microscopy detectors.
+evaluating low-dose cryogenic electron microscopy (cryo-EM) detectors.
 
 ### Modulation Transfer Function (MTF)
 
 The MTF is measured using the knife-edge method. The edge spread function (ESF) is measured by determining the edge angle, 
-and using this to plot pixels values as function of the distance to the edge. This is fitted to a expression describing 
+and using this to plot pixels values as function of the distance to the edge. This is fitted to an expression describing 
 the ESF. From the fitted parameter the MTF is directly calculated.
 
 ### Noise Power Spectrum (NPS) or Wiener Spectrum
@@ -21,6 +21,7 @@ To actually measure DQE(0) you need an accurate way to measure the true conversi
 the detector. For example by using a Faraday cup, mounted close to the detector.  
 
 ## Simulations
+
 Both measureMTF and measureNPS have extensive options to simulate knife edges and flat field noise image stacks. 
 It's possible to simulate things like super resolution and gaussian filters. 
 
@@ -28,14 +29,14 @@ It's possible to simulate things like super resolution and gaussian filters.
 
 Requires Python3 >= 3.8
 
-In a Python3 virtualenv install the requirements.
+This will create a virtual environment and install directly from GitHub
 ```bash
 python3 -m venv mtf-nps-dqe-venv
 source mtf-nps-dqe-venv/bin/activate
 pip3 install git+https://github.com/M4I-nanoscopy/mtf-nps-dqe.git#egg=mtf-nps-dqe
 ```
 
-For development, consider installing like this:
+For development, consider installing with the `-e` flat liek this
 ```bash
 python3 -m venv mtf-nps-dqe-venv
 source mtf-nps-dqe-venv/bin/activate
@@ -48,21 +49,33 @@ In either case, the tools should be available in your PATH with the virtualenv a
 
 ### MTF
 ```bash
-$ measureMTF --help
-usage: measureMTF [-h] [-x X] [-y Y] [--width WIDTH] [--height HEIGHT] [--store STORE] [--super_res SUPER_RES] [--rotate ROTATE] [FILE]
+usage: measureMTF [-h] [-x X] [-y Y] [--width WIDTH] [--height HEIGHT] [--store STORE] [--super_res SUPER_RES] [--rotate ROTATE] [--gauss GAUSS] [--hann] [--bw] [--sim_super_res SIM_SUPER_RES]
+                  [--factor FACTOR] [--real] [--noise]
+                  [FILE]
 
 positional arguments:
   FILE                  Input image (tif or mrc). If none supplied, an edge will be simulated
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -x X                  Starting x coordinate of crop
   -y Y                  Starting y coordinate of crop
   --width WIDTH         Width of crop
   --height HEIGHT       Height of crop
   --store STORE         Store output measured MTF curve
-  --super_res SUPER_RES Rescale the frequency of the measured MTF curve by this factor
+  --super_res SUPER_RES
+                        Rescale the frequency of the measured MTF curve by this factor
   --rotate ROTATE       Number of times to rotate the image clockwise
+
+simulate edge parameters:
+  --gauss GAUSS         Gaussian sigma used for blurring of image
+  --hann                Apply Hann filter (after fourier binning)
+  --bw                  Apply Butterworth low-pass filter (during fourier binning)
+  --sim_super_res SIM_SUPER_RES
+                        Simulate super res factor
+  --factor FACTOR       Initial upscale factor
+  --real                Perform operations in real space
+  --noise               Add Poission noise to illuminated area
 ```
 Starting without coordinates will show a dialog to select the area for cropping:
 
@@ -70,7 +83,7 @@ Starting without coordinates will show a dialog to select the area for cropping:
 measureMTF data/edge/simulated/ideal-edge-no-noise.tif
 ```
 
-To use a simulated edge simple run:
+To use a simulated edge simply run:
 ```bash
 measureMTF
 ```
@@ -78,7 +91,7 @@ measureMTF
 ### Plotting MTF
 
 ```bash
-python3 mtf/mtf.py --published --input data/mtf/*.npz --output mtf.svg 
+mtf --published --input data/mtf/*.npz --output mtf.svg 
 ```
 
 
@@ -99,17 +112,27 @@ options:
 
 ### NPS
 ```bash
-$ measureNPS --help
-usage: measureNPS.py [-h] [--super_res SUPER_RES] [--store STORE] [FILE]
+$ usage: measureNPS [-h] [--super_res SUPER_RES] [--store STORE] [--crop CROP] [--guess] [--gauss GAUSS] [--hann] [--bw] [--sim_super_res SIM_SUPER_RES] [--factor FACTOR] [--real] [FILE]
 
 positional arguments:
-  FILE                  Input image stack of flat fields (mrcs).
+  FILE                  Input image stack of flat fields (MRCs). If none supplied, a stack will be simulated
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   --super_res SUPER_RES
                         Rescale the frequency of the measured NPS curve by this factor
   --store STORE         Store output measured MTF curve
+  --crop CROP           Crop the image to this (power of 2) size. This helps with NPS(0) estimates.
+  --guess               Use guessed NPS(0) opposed to fitted NPS(0). Sometimes the fitting is bad.
+
+simulate:
+  --gauss GAUSS         Gaussian sigma used for blurring of image
+  --hann                Apply Hann filter (after fourier binning)
+  --bw                  Apply Butterworth low-pass filter (during fourier binning)
+  --sim_super_res SIM_SUPER_RES
+                        Simulate super res factor
+  --factor FACTOR       Initial upscale factor
+  --real                Perform operations in real space
 ```
 
 To use a simulated image stack simple run:
@@ -120,27 +143,26 @@ $ measureNPS
 ### Plotting NPS
 
 ```bash
-python3 nps/nps.py --input data/nps/*.npz --output nps.svg 
+nps --input data/nps/*.npz --output nps.svg 
 ```
 
 ### DQE
 ```bash
-$ python3 dqe/calculateDQE.py --help
-usage: calculateDQE.py [-h] --mtf MTF --nps NPS [--dqe0 DQE0] [--store STORE] [--name NAME]
+$ usage: calculateDQE [-h] --mtf MTF --nps NPS [--dqe0 DQE0] [--store STORE] [--name NAME]
 
-optional arguments:
+options:
   -h, --help     show this help message and exit
-  --mtf MTF      Input measured MTF curve (.npz)
-  --nps NPS      Input measured NPS curve (.npz)
+  --mtf MTF      Input measured MTF curve (.npz file)
+  --nps NPS      Input measured NPS curve (.npz file)
   --dqe0 DQE0    Assumed DQE(0)
-  --store STORE  Store output measured DQE curve
+  --store STORE  Store output measured DQE curve (.npz file)
   --name NAME    Label to store with measured DQE curve (default basename of file)
 ```
 
 ### Plotting DQE
 
 ```bash
-python3 dqe/dqe.py --published --input data/dqe/*.npz --output dqe.svg 
+dqe --published --input data/dqe/*.npz --output dqe.svg 
 ```
 
 ## References
@@ -168,14 +190,15 @@ DQE curves for Falcon3 at 300 kV are extracted from here:
 ## TODOs
 Making these scripts into a package was mostly an afterthought. Some things need still to be fixed as a result.
 
-* Refactor measureMTF and measureNPS to truly run from main()
-* Include entry point for scripts
+* Refactor all scripts to truly run from main(), this now done with a hack in setup.py
+  * This currently causes all exceptions to occur during library loading
 * Better script names for plotting
 
 ## Authors
 
 * Paul van Schayck - p.vanschayck@maastrichtuniversity.nl
 * Yue Zhang - yue.zhang@maastrichtuniveristy.nl
+* Raimond Ravelli - rbg.ravelli@maastrichtuniversity.nl (corresponding)
 
 ## Copyright
 

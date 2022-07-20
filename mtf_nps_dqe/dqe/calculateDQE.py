@@ -8,8 +8,8 @@ import numpy as np
 def parse_arguments():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--mtf', type=str, required=True, help='Input measured MTF curve')
-    parser.add_argument('--nps', type=str, required=True, help='Input measured NPS curve')
+    parser.add_argument('--mtf', type=str, required=True, help='Input measured MTF curve (.npz file)')
+    parser.add_argument('--nps', type=str, required=True, help='Input measured NPS curve (.npz file)')
     parser.add_argument('--dqe0', type=float, default=0.95, help='Assumed DQE(0)')
     parser.add_argument('--store', default=None, type=str, help='Store output measured DQE curve')
     parser.add_argument('--name', type=str, help='Label to store with measured DQE curve (default basename of file)')
